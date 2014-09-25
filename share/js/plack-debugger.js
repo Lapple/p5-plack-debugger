@@ -386,7 +386,7 @@ Plack.Debugger.UI.prototype.register = function () {
 }
 
 Plack.Debugger.UI.prototype._load_request = function ( data ) {
-    var open_toolbar = false;
+    var should_open_toolbar = false;
 
     // load the data into the various places 
     for ( var i = 0; i < data.length; i++ ) {
@@ -405,17 +405,17 @@ Plack.Debugger.UI.prototype._load_request = function ( data ) {
         }
 
         if ( data[i].notifications ) {
-            console.log('... got some notifications');
+            // console.log('... got some notifications');
             if ( data[i].notifications.error && data[i].notifications.error > 0 ) {
-                open_toolbar = true;
+                should_open_toolbar = true;
             }
             if ( data[i].notifications.warning && data[i].notifications.warning > 0 ) {
-                open_toolbar = true;
+                should_open_toolbar = true;
             }
         }
     }
 
-    if ( open_toolbar ) {
+    if ( should_open_toolbar ) {
         this.trigger( 'plack-debugger.ui.toolbar:open' );
     }
 }
