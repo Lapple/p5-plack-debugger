@@ -1,0 +1,17 @@
+{
+  "name": "p5-plack-debugger",
+  "version": "1.0.0",
+  "description": "A new debugging tool for Plack web applications",
+  "scripts": {
+    "example": "starman --host 127.0.0.1 --port 8080 -I lib example/app.psgi"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stevan/p5-plack-debugger.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stevan/p5-plack-debugger/issues"
+  },
+  "homepage": "https://github.com/stevan/p5-plack-debugger"
+}
