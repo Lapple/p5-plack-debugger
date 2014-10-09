@@ -103,6 +103,10 @@
     line-height : 1.0em;
 }
 
+#plack-debugger .pdb-collapsed .pdb-open-button:after {
+    content : '☰';
+}
+
 #plack-debugger .pdb-collapsed .pdb-open-button:hover {
     cursor : pointer;
     color  : #ffffff;
@@ -118,34 +122,7 @@
     top           : 0;
     bottom        : 0;
     right         : 0;
-    display       : none;
     border-left   : 1px solid #ffffff;
-}
-
-#plack-debugger .pdb-toolbar .pdb-header {
-    border-bottom : 1px solid #ffffff;
-}
-
-#plack-debugger .pdb-toolbar .pdb-header .pdb-close-button {
-    background  : #333333;
-    padding     : 5px;
-    color       : #999999;
-    font-size   : 2.5em;
-    line-height : 1.0em;  
-    text-align  : right;
-}
-
-#plack-debugger .pdb-toolbar .pdb-header .pdb-close-button:hover {
-    cursor : pointer;
-    color  : #ffffff;
-}
-
-#plack-debugger .pdb-toolbar .pdb-loading {
-    color       : #ffffff;
-    font-size   : 1.2em;
-    text-align  : center;
-    font-style  : oblique;
-    font-weight : normal !important;
 }
 
 #plack-debugger .pdb-toolbar .pdb-buttons .pdb-button {
@@ -182,14 +159,12 @@
     top      : 0;
     left     : 0;
     right    : 300px;
-    height   : 100%;
-    display  : none;
+    bottom   : 0;
 }
 
 #plack-debugger .pdb-panels .pdb-panel {
     background : #333333;
     height     : 100%;
-    display    : none; 
     overflow   : auto;
 }
 
@@ -213,6 +188,10 @@
 #plack-debugger .pdb-panels .pdb-panel .pdb-header .pdb-close-button:hover {
     cursor : pointer;
     color  : #ffffff;
+}
+
+#plack-debugger .pdb-panels .pdb-panel .pdb-header .pdb-close-button:after {
+    content : '☒';
 }
 
 #plack-debugger .pdb-panels .pdb-panel .pdb-header .pdb-title {

@@ -1488,10 +1488,4 @@ Plack.Debugger.UI.Panels.Panel.prototype.formatters = {
     }
 }
 
-/* =============================================================== */
-
-var plack_debugger = new Plack.Debugger().ready(function () {
-    if (console && console.log) { console.log('... ready to debug some stuff!') }
-});
-
-
+module.exports = Plack.Debugger;
