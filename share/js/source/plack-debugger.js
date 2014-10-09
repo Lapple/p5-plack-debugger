@@ -414,8 +414,8 @@ Plack.Debugger.UI = function ( $jQuery, $parent, $target ) {
         '<style type="text/css">' 
             + '@import url(' + Plack.Debugger.$CONFIG.static_url + '/css/plack-debugger.css);' 
         + '</style>' 
-        + '<div id="plack-debugger"></div>'
-    ).find('#plack-debugger');
+        + '<div id="plack-debugger2" style="display: none"></div>'
+    ).find('#plack-debugger2');
 
     this.collapsed = new Plack.Debugger.UI.Collapsed( this.$element, this );
     this.toolbar   = new Plack.Debugger.UI.Toolbar( this.$element, this );

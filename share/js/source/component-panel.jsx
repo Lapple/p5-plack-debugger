@@ -19,7 +19,7 @@ module.exports = React.createClass({
                 </div>
             </div>
             <div className="pdb-content">
-                Panel content
+                { this.props.children }
             </div>
         </div>;
     },

@@ -2,7 +2,7 @@ var React = require('react');
 var Plack_Debugger = require('./plack-debugger');
 var Toolbar = require('./component-toolbar.jsx');
 
-var CONTAINER_ID = 'plack-debugger-2';
+var CONTAINER_ID = 'plack-debugger';
 
 new Plack_Debugger().ready(function() {
     var container_element = create_container(CONTAINER_ID);
