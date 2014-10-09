@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var key = require('keymaster');
 var React = require('react');
 
 var ExpandButton = require('./component-expand-button.jsx');
@@ -39,6 +40,12 @@ module.exports = React.createClass({
                 </Panel>
             </div>;
         }
+    },
+    componentDidMount: function() {
+        key('esc', this.toggle);
+    },
+    componentWillUnmount: function () {
+        key.unbind('esc');
     },
     toggle: function() {
         if (this.state.expanded) {

@@ -13,15 +13,22 @@ var Formatter = React.createClass({
         return this['formatter_' + this.props.formatter](this.props.data);
     },
 
+    formatter_empty: function() {
+        return <span></span>;
+    },
     formatter_to_string: function(data) {
         return <span>{ String(data) }</span>;
     },
     formatter_pass_through: function(data) {
-        return <pre>{ this.formatter_to_string(data) }</pre>;
+        return <pre>{ data }</pre>;
     },
     formatter_generic_data_formatter: function(data) {
         if (_.isString(data) || _.isNumber(data) || _.isUndefined(data)) {
             return this.formatter_to_string(data);
+        }
+
+        if (_.isNull(data)) {
+            return this.formatter_empty();
         }
 
         if (_.isArray(data)) {
@@ -65,7 +72,7 @@ var Formatter = React.createClass({
         }
 
         if (_.isEmpty(data)) {
-            return <span></span>;
+            return this.formatter_empty();
         }
 
         if (_.isArray(data)) {
