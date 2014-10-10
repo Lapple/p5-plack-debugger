@@ -7,7 +7,7 @@ module.exports = React.createClass({
     render: function() {
         return <div className="pdb-panel">
             <div className="pdb-header">
-                <div className="pdb-close-button" onClick={ this.props.onClose }></div>
+                { this.renderCloseButton() }
                 <div className="pdb-notifications">
                     { _.map(this.props.notifications, this.renderNotification) }
                 </div>
@@ -22,6 +22,11 @@ module.exports = React.createClass({
                 { this.props.children }
             </div>
         </div>;
+    },
+    renderCloseButton: function() {
+        if (_.isFunction(this.props.onClose)) {
+            return <div className="pdb-close-button" onClick={ this.props.onClose }></div>;
+        }
     },
     renderNotification: function(count, type) {
         return <Badge type={ type } count={ count } labelled={ true } />;

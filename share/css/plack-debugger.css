@@ -280,7 +280,6 @@
     margin  : 5px;
     padding : 0px 5px 10px 5px;    
     border  : 1px solid #666666;
-    display : none;
 }
 
 #plack-debugger .pdb-panels .pdb-panel .pdb-subrequest .pdb-subrequest-results .pdb-subrequest-header {
@@ -314,10 +313,6 @@
 
 #plack-debugger .pdb-panels .pdb-panel .pdb-subrequest .pdb-subrequest-results .pdb-subrequest-result {
     margin : 5px;
-}
-
-#plack-debugger .pdb-panels .pdb-panel .pdb-subrequest .pdb-subrequest-results .pdb-subrequest-result-data {
-    display : none;
 }
 
 /* formatter styles */

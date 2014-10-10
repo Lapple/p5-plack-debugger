@@ -1,62 +1,69 @@
 var _ = require('underscore');
 var React = require('react');
 
+var Expandable = require('./mixin-expandable');
 var Badge = require('./component-badge.jsx');
+var Report = require('./component-report.jsx');
+var SubrequestPanel = require('./component-subrequest-panel.jsx');
 
 module.exports = React.createClass({
+    mixins: [Expandable],
     render: function() {
         var props = this.props;
+        var notifications = this.getNotifications(props.results);
 
         return <div className='pdb-subrequest'>
-            <div class='pdb-subrequest-details'>
-                <div class='pdb-notifications'>
-                    { _.map(props.notifications, this.renderNotification) }
+            <div className='pdb-subrequest-details' onClick={ this.toggle }>
+                <div className='pdb-notifications'>
+                    { _.map(notifications, this.renderNotification) }
                 </div>
                 <strong>{ props.uri }</strong>
                 <small>
-                    [
+                    { '{' }
                         method: { props.method },
                         request-UID: { props.request_uid },
                         timestamp: { props.timestamp }
-                    ]
+                    { '}' }
                 </small>
             </div>
-            <div class='pdb-subrequest-results'>
-                Results
-            </div>
+            { this.renderContent() }
         </div>
     },
     renderNotification: function(count, type) {
         return <Badge type={ type } count={ count } />;
+    },
+    renderContent: function() {
+        if (this.state.expanded) {
+            return <div className='pdb-subrequest-results'>
+                {
+                    _.map(this.props.results, function(item) {
+                        var formatter = item.metadata && item.metadata.formatter;
+
+                        return <SubrequestPanel title={ item.title } subtitle={ item.subtitle } notifications={ item.notifications }>
+                            <Report formatter={ formatter} data={ item.result } />
+                        </SubrequestPanel>;
+                    })
+                }
+            </div>
+        }
+    },
+    getNotifications: function(rows) {
+        return _.reduce(rows, function(memo, row) {
+            var notifications = row.notifications;
+
+            if (notifications) {
+                return {
+                    error: memo.error + (notifications.error || 0),
+                    success: memo.success + (notifications.success || 0),
+                    warning: memo.warning + (notifications.warning || 0)
+                };
+            } else {
+                return memo;
+            }
+        }, {
+            error: 0,
+            success: 0,
+            warning: 0
+        });
     }
 });
-
-//     out += '<div class="pdb-subrequest-results">';
-//         for ( var j = 0; j < data[i].results.length; j++ ) {
-//             var result        = data[i].results[j];
-//             var notifications = result.notifications;
-//             out += 
-//             '<div class="pdb-subrequest-result">' 
-//                 + '<div class="pdb-subrequest-header">' 
-//                     + ((notifications) 
-//                         ?  '<div class="pdb-notifications">' 
-//                                 + ((notifications.warning) ? '<div class="pdb-badge pdb-warning">' + notifications.warning + '</div>' : '')
-//                                 + ((notifications.error)   ? '<div class="pdb-badge pdb-error">'   + notifications.error   + '</div>' : '')
-//                                 + ((notifications.success) ? '<div class="pdb-badge pdb-success">' + notifications.success + '</div>' : '')
-//                             + '</div>'
-//                         : '')
-//                     + '<div class="pdb-title">' + result.title    + '</div>'
-//                 + '</div>'
-//                 + '<div class="pdb-subrequest-result-data">';
-//                     // FIXME: this code right below here is ugly and confusing 
-//                     if ( result.metadata && result.metadata.formatter ) {
-//                         out += this[ result.metadata.formatter ].formatter.apply( this, [ result.result ] );
-//                     } 
-//                     else {
-//                         out += this.generic_data_formatter.formatter.apply( this, [ result.result ] );
-//                     }
-//                 out += '</div>'
-//             + '</div>';
-//         }
-//     out += '</div>';
-// out += '</div>';

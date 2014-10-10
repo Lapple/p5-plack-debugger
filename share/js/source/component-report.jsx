@@ -10,7 +10,11 @@ var Report = React.createClass({
         };
     },
     render: function() {
-        return this['formatter_' + this.props.formatter](this.props.data);
+        var formatter = this['formatter_' + this.props.formatter];
+
+        assert(_.isFunction(formatter));
+
+        return formatter(this.props.data);
     },
     formatter_empty: function() {
         return <span></span>;
@@ -107,7 +111,7 @@ var Report = React.createClass({
         assert(_.isArray(data), '[Bad Formatter Args] "ordered_key_value_pairs" expected an Array');
         assert(is_even(data.length), '[Bad Formatter Args] "ordered_key_value_pairs" expected an even length Array');
 
-        return <Report data={ ordered_pairs_to_object(data) } />;
+        return this.formatter_generic_data_formatter(ordered_pairs_to_object(data));
     },
     formatter_ordered_keys_with_nested_data: function(data) {
         if (!data) {
@@ -117,7 +121,7 @@ var Report = React.createClass({
         assert(_.isArray(data), '[Bad Formatter Args] "ordered_nested_data" expected an Array');
         assert(is_even(data.length), '[Bad Formatter Args] "ordered_nested_data" expected an even length Array');
 
-        return <Report formatter='nested_data' data={ ordered_pairs_to_object(data) } />;
+        return this.formatter_nested_data(ordered_pairs_to_object(data));
     },
     formatter_simple_data_table: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "simple_data_table" expected an Array');

@@ -2,13 +2,15 @@ var _ = require('underscore');
 var key = require('keymaster');
 var React = require('react');
 
-var ExpandButton = require('./component-expand-button.jsx');
+var Expandable = require('./mixin-expandable');
 var Menu = require('./component-menu.jsx');
 var Panel = require('./component-panel.jsx');
 var Report = require('./component-report.jsx');
 var Subrequests = require('./component-subrequests.jsx');
+var ExpandButton = require('./component-expand-button.jsx');
 
 module.exports = React.createClass({
+    mixins: [Expandable],
     getDefaultProps: function() {
         return {
             request: [],
@@ -17,7 +19,6 @@ module.exports = React.createClass({
     },
     getInitialState: function() {
         return {
-            expanded: false,
             activePanel: null
         };
     },
@@ -38,9 +39,6 @@ module.exports = React.createClass({
             var data = _.findWhere(this.props.request, { title: this.state.activePanel });
             var formatter = data.metadata && data.metadata.formatter;
 
-            // TODO: Remove.
-            console.log(data);
-
             return <div className='pdb-panels'>
                 <Panel title={ data.title } subtitle={ data.subtitle } notifications={ data.notifications } onClose={ this.closeActivePanel }>
                     {
@@ -60,27 +58,10 @@ module.exports = React.createClass({
     componentWillUnmount: function () {
         key.unbind('esc');
     },
-    toggle: function() {
-        if (this.state.expanded) {
-            this.collapse();
-        } else {
-            this.expand();
-        }
-    },
     setActivePanel: function(title) {
-        this.setState({
-            activePanel: title
-        });
+        this.setState({ activePanel: title });
     },
     closeActivePanel: function() {
-        this.setState({
-            activePanel: null
-        });
-    },
-    expand: function() {
-        this.setState({ expanded: true });
-    },
-    collapse: function() {
-        this.setState({ expanded: false });
+        this.setState({ activePanel: null });
     }
 });
