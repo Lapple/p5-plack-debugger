@@ -19,7 +19,7 @@ var Report = React.createClass({
         return <span>{ String(data) }</span>;
     },
     formatter_pass_through: function(data) {
-        return <pre>{ data }</pre>;
+        return <div dangerouslySetInnerHTML={{__html: data}}></div>;
     },
     formatter_generic_data_formatter: function(data) {
         if (_.isString(data) || _.isNumber(data) || _.isUndefined(data)) {

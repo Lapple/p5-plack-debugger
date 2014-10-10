@@ -2914,7 +2914,7 @@ var Report = React.createClass({displayName: 'Report',
         return React.DOM.span(null,  String(data) );
     },
     formatter_pass_through: function(data) {
-        return React.DOM.pre(null, data );
+        return React.DOM.div({dangerouslySetInnerHTML: {__html: data}});
     },
     formatter_generic_data_formatter: function(data) {
         if (_.isString(data) || _.isNumber(data) || _.isUndefined(data)) {
@@ -3275,7 +3275,6 @@ module.exports = React.createClass({displayName: 'exports',
         this.setState({ expanded: true });
     },
     collapse: function() {
-        this.closeActivePanel();
         this.setState({ expanded: false });
     }
 });

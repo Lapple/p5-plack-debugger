@@ -81,7 +81,6 @@ module.exports = React.createClass({
         this.setState({ expanded: true });
     },
     collapse: function() {
-        this.closeActivePanel();
         this.setState({ expanded: false });
     }
 });
