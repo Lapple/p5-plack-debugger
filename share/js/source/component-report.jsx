@@ -3,7 +3,7 @@ var React = require('react');
 var assert = require('assert');
 
 var Table = require('./component-table.jsx');
-var Formatter = React.createClass({
+var Report = React.createClass({
     getDefaultProps: function() {
         return {
             formatter: 'generic_data_formatter'
@@ -12,7 +12,6 @@ var Formatter = React.createClass({
     render: function() {
         return this['formatter_' + this.props.formatter](this.props.data);
     },
-
     formatter_empty: function() {
         return <span></span>;
     },
@@ -38,7 +37,7 @@ var Formatter = React.createClass({
                         _.map(data, function(item, index) {
                             return <tr key={ index }>
                                 <td className='pdb-item'>
-                                    <Formatter data={ item } />
+                                    <Report data={ item } />
                                 </td>
                             </tr>;
                         })
@@ -55,7 +54,7 @@ var Formatter = React.createClass({
                             return <tr key={ key }>
                                 <td className='pdb-key'>{ key }</td>
                                 <td className='pdb-value'>
-                                    <Formatter data={ value } />
+                                    <Report data={ value } />
                                 </td>
                             </tr>;
                         })
@@ -80,7 +79,7 @@ var Formatter = React.createClass({
                 {
                     _.map(data, function(item, index) {
                         return <li className='pdb-ulist-item' key={ index }>
-                            <Formatter formatter='nested_data' data={ item } />
+                            <Report formatter='nested_data' data={ item } />
                         </li>;
                     })
                 }
@@ -94,7 +93,7 @@ var Formatter = React.createClass({
                         return <li className='pdb-ulist-item' key={ key }>
                             <span className='pdb-key'>{ key }</span>
                             <span className='pdb-value'>
-                                <Formatter formatter='nested_data' data={ value } />
+                                <Report formatter='nested_data' data={ value } />
                             </span>
                         </li>;
                     })
@@ -108,7 +107,7 @@ var Formatter = React.createClass({
         assert(_.isArray(data), '[Bad Formatter Args] "ordered_key_value_pairs" expected an Array');
         assert(is_even(data.length), '[Bad Formatter Args] "ordered_key_value_pairs" expected an even length Array');
 
-        return <Formatter data={ ordered_pairs_to_object(data) } />;
+        return <Report data={ ordered_pairs_to_object(data) } />;
     },
     formatter_ordered_keys_with_nested_data: function(data) {
         if (!data) {
@@ -118,7 +117,7 @@ var Formatter = React.createClass({
         assert(_.isArray(data), '[Bad Formatter Args] "ordered_nested_data" expected an Array');
         assert(is_even(data.length), '[Bad Formatter Args] "ordered_nested_data" expected an even length Array');
 
-        return <Formatter formatter='nested_data' data={ ordered_pairs_to_object(data) } />;
+        return <Report formatter='nested_data' data={ ordered_pairs_to_object(data) } />;
     },
     formatter_simple_data_table: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "simple_data_table" expected an Array');
@@ -183,4 +182,4 @@ function ordered_pairs_to_object(list) {
     return object;
 }
 
-module.exports = Formatter;
+module.exports = Report;

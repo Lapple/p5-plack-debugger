@@ -5,9 +5,16 @@ var React = require('react');
 var ExpandButton = require('./component-expand-button.jsx');
 var Menu = require('./component-menu.jsx');
 var Panel = require('./component-panel.jsx');
-var Formatter = require('./component-formatter.jsx');
+var Report = require('./component-report.jsx');
+var Subrequests = require('./component-subrequests.jsx');
 
 module.exports = React.createClass({
+    getDefaultProps: function() {
+        return {
+            request: [],
+            subrequests: []
+        };
+    },
     getInitialState: function() {
         return {
             expanded: false,
@@ -36,7 +43,13 @@ module.exports = React.createClass({
 
             return <div className='pdb-panels'>
                 <Panel title={ data.title } subtitle={ data.subtitle } notifications={ data.notifications } onClose={ this.closeActivePanel }>
-                    <Formatter formatter={ formatter } data={ data.result } />
+                    {
+                        // TODO: Subrequests can be stored in `results` field
+                        // for the AJAX requests section of `request`.
+                        formatter === 'subrequest_formatter' ?
+                        Subrequests({ requests: this.props.subrequests }) :
+                        Report({ formatter: formatter, data: data.result })
+                    }
                 </Panel>
             </div>;
         }
