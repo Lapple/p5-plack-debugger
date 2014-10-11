@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var React = require('react');
-var assert = require('assert');
+var assert = require('./assert');
 
 var Table = require('./component-table.jsx');
 var Report = React.createClass({
