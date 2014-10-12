@@ -1,7 +1,6 @@
 /* =============================================================== */
 
-var Plack;
-if (Plack === undefined) Plack = {};
+var Plack = Plack || {};
 
 Plack.Debugger = function () {
     if ( Plack.Debugger.$CONFIG === undefined ) {
@@ -62,8 +61,7 @@ Plack.Debugger.prototype.ready = function ( callback ) {
 }
 
 Plack.Debugger.prototype._ready = function ( $jQuery, callback ) {
-    this.UI       = new Plack.Debugger.UI( $jQuery(document.body), this, "resource" );
-    this.resource = new Plack.Debugger.Resource( $jQuery, this, "UI" );
+    this.resource = new Plack.Debugger.Resource( $jQuery, this );
 
     // YAGNI (yet):
     // It might be useful to be able to capture AJAX calls
@@ -213,30 +211,6 @@ Plack.Debugger.Abstract.Eventful.prototype.off = function ( e ) {
     if ( this._callbacks[ e ] === undefined ) return;
     //console.log(["un-registering event: " + e + " on ", this ]);
     delete this._callbacks[ e ];
-}
-
-// ----------------------------------------------------------------
-// simple UI object to handle common events 
-
-Plack.Debugger.Abstract.UI = function () {
-    this.$element = null;
-}
-
-Plack.Debugger.Abstract.UI.prototype = new Plack.Debugger.Abstract.Eventful();
-
-Plack.Debugger.Abstract.UI.prototype.is_hidden = function ( e ) { 
-    if (this.$element == null) {
-        throw new Error("It is not possible to know if a null $element is hidden, stop asking!");
-    }
-    return this.$element.is(':hidden');
-}
-
-Plack.Debugger.Abstract.UI.prototype.hide = function ( duration ) {  
-    if ( this.$element != null ) this.$element.hide( duration );
-}
-
-Plack.Debugger.Abstract.UI.prototype.show = function ( duration ) {  
-    if ( this.$element != null ) this.$element.show( duration );
 }
 
 /* =============================================================== */
@@ -409,6 +383,7 @@ Plack.Debugger.Resource.prototype._handle_ajax_complete = function ( e ) {
 
 /* =============================================================== */
 
+<<<<<<< HEAD
 Plack.Debugger.UI = function ( $jQuery, $parent, $target ) {
     this.$element = $jQuery.append(
         '<style type="text/css">' 

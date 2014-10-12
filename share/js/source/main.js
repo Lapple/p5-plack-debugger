@@ -1,15 +1,14 @@
 var _ = require('underscore');
 var React = require('react');
-var Plack_debugger = require('./plack-debugger');
+var Debugger = require('./plack-debugger');
 var Debugger_component = require('./component-debugger.jsx');
 
 var CONTAINER_ID = 'plack-debugger';
 
-new Plack_debugger().ready(function() {
-    var container_element = create_container(CONTAINER_ID);
-    var render = create_renderer(container_element);
+new Debugger().ready(function() {
+    var render = create_renderer(create_container(CONTAINER_ID));
 
-    render();
+    render({ staticURL: Debugger.$CONFIG.static_url });
 
     this.resource.on('plack-debugger.ui:load-request', function(request) {
         // TODO: Move into Resource.
