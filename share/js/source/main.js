@@ -1,11 +1,11 @@
 var _ = require('underscore');
 var React = require('react');
-var Plack_Debugger = require('./plack-debugger');
-var Toolbar = require('./component-toolbar.jsx');
+var Plack_debugger = require('./plack-debugger');
+var Debugger_component = require('./component-debugger.jsx');
 
 var CONTAINER_ID = 'plack-debugger';
 
-new Plack_Debugger().ready(function() {
+new Plack_debugger().ready(function() {
     var container_element = create_container(CONTAINER_ID);
     var render = create_renderer(container_element);
 
@@ -36,7 +36,7 @@ function create_renderer(container) {
 
     return function(props) {
         _.extend(_props, props);
-        React.renderComponent(new Toolbar(_props), container);
+        React.renderComponent(Debugger_component(_props), container);
     };
 }
 

@@ -1727,19 +1727,91 @@ module.exports = React.createClass({displayName: 'exports',
     render: function() {
         if (this.props.count > 0) {
             return React.DOM.div({className:  'pdb-badge pdb-' + this.props.type}, 
-                 this.props.labelled ? this.props.type + ' (' : '', 
-                React.DOM.span(null, 
-                     this.props.count
-                ), 
-                 this.props.labelled ? ')' : ''
+                 this.renderContent() 
             );
         } else {
             return React.DOM.span(null);
+        }
+    },
+    renderContent: function() {
+        if (this.props.labelled) {
+            return this.props.type + ' (' + this.props.count + ')';
+        } else {
+            return this.props.count;
         }
     }
 });
 
 },{"react":18}],5:[function(require,module,exports){
+/** @jsx React.DOM */var _ = require('underscore');
+var key = require('keymaster');
+var React = require('react');
+
+var Expandable = require('./mixin-expandable');
+var Menu = require('./component-menu.jsx');
+var Panel = require('./component-panel.jsx');
+var Report = require('./component-report.jsx');
+var Subrequests = require('./component-subrequests.jsx');
+var ExpandButton = require('./component-expand-button.jsx');
+
+module.exports = React.createClass({displayName: 'exports',
+    mixins: [Expandable],
+    getDefaultProps: function() {
+        return {
+            request: [],
+            subrequests: []
+        };
+    },
+    getInitialState: function() {
+        return {
+            activePanel: null
+        };
+    },
+    render: function() {
+        return React.DOM.div(null, 
+             this.renderMenu(), 
+             this.renderActivePanel(), 
+            ExpandButton({onClick:  this.toggle})
+        );
+    },
+    renderMenu: function() {
+        if (this.state.expanded) {
+            return Menu({buttons:  this.props.request, onClick:  this.setActivePanel});
+        }
+    },
+    renderActivePanel: function() {
+        if (this.state.expanded && this.state.activePanel) {
+            var data = _.findWhere(this.props.request, { title: this.state.activePanel });
+            var formatter = data.metadata && data.metadata.formatter;
+
+            return React.DOM.div({className: "pdb-panels"}, 
+                Panel({title:  data.title, subtitle:  data.subtitle, notifications:  data.notifications, onClose:  this.closeActivePanel}, 
+                    
+                        // TODO: Subrequests can be stored in `results` field
+                        // for the AJAX requests section of `request`.
+                        formatter === 'subrequest_formatter' ?
+                        Subrequests({ requests: this.props.subrequests }) :
+                        Report({ formatter: formatter, data: data.result })
+                    
+                )
+            );
+        }
+    },
+    componentDidMount: function() {
+        key('esc', this.toggle);
+    },
+    componentWillUnmount: function () {
+        key.unbind('esc', this.toggle);
+    },
+    setActivePanel: function(title) {
+        this.setState({ activePanel: title });
+    },
+    closeActivePanel: function() {
+        this.setState({ activePanel: null });
+    }
+});
+
+},{"./component-expand-button.jsx":6,"./component-menu.jsx":8,"./component-panel.jsx":9,"./component-report.jsx":10,"./component-subrequests.jsx":13,"./mixin-expandable":16,"keymaster":1,"react":18,"underscore":2}],6:[function(require,module,exports){
 /** @jsx React.DOM */var React = require('react');
 
 module.exports = React.createClass({displayName: 'exports',
@@ -1750,7 +1822,7 @@ module.exports = React.createClass({displayName: 'exports',
     }
 });
 
-},{"react":18}],6:[function(require,module,exports){
+},{"react":18}],7:[function(require,module,exports){
 /** @jsx React.DOM */var _ = require('underscore');
 var React = require('react');
 
@@ -1771,7 +1843,7 @@ module.exports = React.createClass({displayName: 'exports',
     }
 });
 
-},{"./component-badge.jsx":4,"react":18,"underscore":2}],7:[function(require,module,exports){
+},{"./component-badge.jsx":4,"react":18,"underscore":2}],8:[function(require,module,exports){
 /** @jsx React.DOM */var _ = require('underscore');
 var React = require('react');
 
@@ -1796,7 +1868,7 @@ module.exports = React.createClass({displayName: 'exports',
     }
 });
 
-},{"./component-menu-button.jsx":6,"react":18,"underscore":2}],8:[function(require,module,exports){
+},{"./component-menu-button.jsx":7,"react":18,"underscore":2}],9:[function(require,module,exports){
 /** @jsx React.DOM */var _ = require('underscore');
 var React = require('react');
 
@@ -1832,7 +1904,7 @@ module.exports = React.createClass({displayName: 'exports',
     }
 });
 
-},{"./component-badge.jsx":4,"react":18,"underscore":2}],9:[function(require,module,exports){
+},{"./component-badge.jsx":4,"react":18,"underscore":2}],10:[function(require,module,exports){
 /** @jsx React.DOM */var _ = require('underscore');
 var React = require('react');
 var assert = require('./assert');
@@ -2023,7 +2095,7 @@ function ordered_pairs_to_object(list) {
 
 module.exports = Report;
 
-},{"./assert":3,"./component-table.jsx":13,"react":18,"underscore":2}],10:[function(require,module,exports){
+},{"./assert":3,"./component-table.jsx":14,"react":18,"underscore":2}],11:[function(require,module,exports){
 /** @jsx React.DOM */var _ = require('underscore');
 var React = require('react');
 
@@ -2057,7 +2129,7 @@ module.exports = React.createClass({displayName: 'exports',
     }
 });
 
-},{"./component-badge.jsx":4,"./mixin-expandable":16,"react":18,"underscore":2}],11:[function(require,module,exports){
+},{"./component-badge.jsx":4,"./mixin-expandable":16,"react":18,"underscore":2}],12:[function(require,module,exports){
 /** @jsx React.DOM */var _ = require('underscore');
 var React = require('react');
 
@@ -2128,7 +2200,7 @@ module.exports = React.createClass({displayName: 'exports',
     }
 });
 
-},{"./component-badge.jsx":4,"./component-report.jsx":9,"./component-subrequest-panel.jsx":10,"./mixin-expandable":16,"react":18,"underscore":2}],12:[function(require,module,exports){
+},{"./component-badge.jsx":4,"./component-report.jsx":10,"./component-subrequest-panel.jsx":11,"./mixin-expandable":16,"react":18,"underscore":2}],13:[function(require,module,exports){
 /** @jsx React.DOM */var _ = require('underscore');
 var React = require('react');
 
@@ -2142,7 +2214,7 @@ module.exports = React.createClass({displayName: 'exports',
     }
 });
 
-},{"./component-subrequest.jsx":11,"react":18,"underscore":2}],13:[function(require,module,exports){
+},{"./component-subrequest.jsx":12,"react":18,"underscore":2}],14:[function(require,module,exports){
 /** @jsx React.DOM */var _ = require('underscore');
 var React = require('react');
 
@@ -2173,89 +2245,20 @@ module.exports = React.createClass({displayName: 'exports',
     renderTableCell: function(value, index) {
         return React.DOM.td({key: index }, value );
     },
-    renderRow: function(col, list, index) {
-        return React.DOM.tr({key: index },  _.map(list, col) );
+    renderRow: function(colFunction, list, index) {
+        return React.DOM.tr({key: index },  _.map(list, colFunction) );
     }
 });
 
-},{"react":18,"underscore":2}],14:[function(require,module,exports){
-/** @jsx React.DOM */var _ = require('underscore');
-var key = require('keymaster');
-var React = require('react');
-
-var Expandable = require('./mixin-expandable');
-var Menu = require('./component-menu.jsx');
-var Panel = require('./component-panel.jsx');
-var Report = require('./component-report.jsx');
-var Subrequests = require('./component-subrequests.jsx');
-var ExpandButton = require('./component-expand-button.jsx');
-
-module.exports = React.createClass({displayName: 'exports',
-    mixins: [Expandable],
-    getDefaultProps: function() {
-        return {
-            request: [],
-            subrequests: []
-        };
-    },
-    getInitialState: function() {
-        return {
-            activePanel: null
-        };
-    },
-    render: function() {
-        return React.DOM.div(null, 
-             this.renderMenu(), 
-             this.renderActivePanel(), 
-            ExpandButton({onClick:  this.toggle})
-        );
-    },
-    renderMenu: function() {
-        if (this.state.expanded) {
-            return Menu({buttons:  this.props.request, onClick:  this.setActivePanel});
-        }
-    },
-    renderActivePanel: function() {
-        if (this.state.expanded && this.state.activePanel) {
-            var data = _.findWhere(this.props.request, { title: this.state.activePanel });
-            var formatter = data.metadata && data.metadata.formatter;
-
-            return React.DOM.div({className: "pdb-panels"}, 
-                Panel({title:  data.title, subtitle:  data.subtitle, notifications:  data.notifications, onClose:  this.closeActivePanel}, 
-                    
-                        // TODO: Subrequests can be stored in `results` field
-                        // for the AJAX requests section of `request`.
-                        formatter === 'subrequest_formatter' ?
-                        Subrequests({ requests: this.props.subrequests }) :
-                        Report({ formatter: formatter, data: data.result })
-                    
-                )
-            );
-        }
-    },
-    componentDidMount: function() {
-        key('esc', this.toggle);
-    },
-    componentWillUnmount: function () {
-        key.unbind('esc');
-    },
-    setActivePanel: function(title) {
-        this.setState({ activePanel: title });
-    },
-    closeActivePanel: function() {
-        this.setState({ activePanel: null });
-    }
-});
-
-},{"./component-expand-button.jsx":5,"./component-menu.jsx":7,"./component-panel.jsx":8,"./component-report.jsx":9,"./component-subrequests.jsx":12,"./mixin-expandable":16,"keymaster":1,"react":18,"underscore":2}],15:[function(require,module,exports){
+},{"react":18,"underscore":2}],15:[function(require,module,exports){
 var _ = require('underscore');
 var React = require('react');
-var Plack_Debugger = require('./plack-debugger');
-var Toolbar = require('./component-toolbar.jsx');
+var Plack_debugger = require('./plack-debugger');
+var Debugger_component = require('./component-debugger.jsx');
 
 var CONTAINER_ID = 'plack-debugger';
 
-new Plack_Debugger().ready(function() {
+new Plack_debugger().ready(function() {
     var container_element = create_container(CONTAINER_ID);
     var render = create_renderer(container_element);
 
@@ -2286,7 +2289,7 @@ function create_renderer(container) {
 
     return function(props) {
         _.extend(_props, props);
-        React.renderComponent(new Toolbar(_props), container);
+        React.renderComponent(Debugger_component(_props), container);
     };
 }
 
@@ -2294,7 +2297,7 @@ function check_for_ajax_tracking(request) {
     return _.some(request, function(r) { return r.metadata && !!r.metadata.track_subrequests; });
 }
 
-},{"./component-toolbar.jsx":14,"./plack-debugger":17,"react":18,"underscore":2}],16:[function(require,module,exports){
+},{"./component-debugger.jsx":5,"./plack-debugger":17,"react":18,"underscore":2}],16:[function(require,module,exports){
 module.exports = {
     getInitialState: function() {
         return {

@@ -28,7 +28,7 @@ module.exports = React.createClass({
     renderTableCell: function(value, index) {
         return <td key={ index }>{ value }</td>;
     },
-    renderRow: function(col, list, index) {
-        return <tr key={ index }>{ _.map(list, col) }</tr>;
+    renderRow: function(colFunction, list, index) {
+        return <tr key={ index }>{ _.map(list, colFunction) }</tr>;
     }
 });

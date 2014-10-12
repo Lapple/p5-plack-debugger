@@ -56,7 +56,7 @@ module.exports = React.createClass({
         key('esc', this.toggle);
     },
     componentWillUnmount: function () {
-        key.unbind('esc');
+        key.unbind('esc', this.toggle);
     },
     setActivePanel: function(title) {
         this.setState({ activePanel: title });
