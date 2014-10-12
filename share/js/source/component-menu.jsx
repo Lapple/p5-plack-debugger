@@ -5,8 +5,7 @@ var Button = require('./component-menu-button.jsx');
 
 module.exports = React.createClass({
     render: function() {
-        // TODO: Change to `menu`.
-        return <div className='pdb-toolbar'>
+        return <div className='pdb-menu'>
             <div className='pdb-buttons'>
                 { _.map(this.props.buttons, this.renderButton) }
             </div>

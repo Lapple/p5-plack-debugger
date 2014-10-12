@@ -6,7 +6,7 @@ module.exports = React.createClass({
         var data = this.props.data;
         var thead, tbody;
 
-        if (this.props.has_header) {
+        if (this.props.hasHeader) {
             thead = _.head(data, 1);
             tbody = _.tail(data);
         } else {

@@ -3659,6 +3659,8 @@ var Report = require('./component-report.jsx');
 var Subrequests = require('./component-subrequests.jsx');
 var ExpandButton = require('./component-expand-button.jsx');
 
+var TOGGLE_KEY = 'esc';
+
 module.exports = React.createClass({displayName: 'exports',
     mixins: [ Expandable() ],
     getDefaultProps: function() {
@@ -3703,10 +3705,10 @@ module.exports = React.createClass({displayName: 'exports',
         }
     },
     componentDidMount: function() {
-        key('esc', this.toggle);
+        key(TOGGLE_KEY, this.toggle);
     },
     componentWillUnmount: function () {
-        key.unbind('esc', this.toggle);
+        key.unbind(TOGGLE_KEY, this.toggle);
     },
     setActivePanel: function(title) {
         this.setState({ activePanel: title });
@@ -3756,8 +3758,7 @@ var Button = require('./component-menu-button.jsx');
 
 module.exports = React.createClass({displayName: 'exports',
     render: function() {
-        // TODO: Change to `menu`.
-        return React.DOM.div({className: "pdb-toolbar"}, 
+        return React.DOM.div({className: "pdb-menu"}, 
             React.DOM.div({className: "pdb-buttons"}, 
                  _.map(this.props.buttons, this.renderButton) 
             )
@@ -3837,7 +3838,7 @@ module.exports = React.createClass({displayName: 'exports',
         return React.DOM.span(null,  String(data) );
     },
     formatter_pass_through: function(data) {
-        return React.DOM.div({dangerouslySetInnerHTML: {__html: data}});
+        return React.DOM.div({dangerouslySetInnerHTML: { __html: data}});
     },
     formatter_generic_data_formatter: function(data) {
         if (_.isString(data) || _.isNumber(data) || _.isUndefined(data)) {
@@ -3900,15 +3901,15 @@ module.exports = React.createClass({displayName: 'exports',
     },
     formatter_ordered_key_value_pairs: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "ordered_key_value_pairs" expected an Array');
-        assert(is_even(data.length), '[Bad Formatter Args] "ordered_key_value_pairs" expected an even length Array');
+        assert(isEven(data.length), '[Bad Formatter Args] "ordered_key_value_pairs" expected an even length Array');
 
-        return this.formatter_generic_data_formatter(ordered_pairs_to_object(data));
+        return this.formatter_generic_data_formatter(orderedPairsToObject(data));
     },
     formatter_ordered_keys_with_nested_data: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "ordered_nested_data" expected an Array');
-        assert(is_even(data.length), '[Bad Formatter Args] "ordered_nested_data" expected an even length Array');
+        assert(isEven(data.length), '[Bad Formatter Args] "ordered_nested_data" expected an even length Array');
 
-        return this.formatter_nested_data(ordered_pairs_to_object(data));
+        return this.formatter_nested_data(orderedPairsToObject(data));
     },
     formatter_simple_data_table: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "simple_data_table" expected an Array');
@@ -3918,15 +3919,15 @@ module.exports = React.createClass({displayName: 'exports',
     formatter_simple_data_table_w_headers: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "simple_data_table_w_headers" expected an Array');
 
-        return Table({data: data, has_header: true })
+        return Table({data: data, hasHeader: true })
     },
     formatter_multiple_data_table: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "multiple_data_table" expected an Array');
-        assert(is_even(data.length), '[Bad Formatter Args] "multiple_data_table" expected an even length Array');
+        assert(isEven(data.length), '[Bad Formatter Args] "multiple_data_table" expected an even length Array');
 
         return React.DOM.div(null, 
             
-                _.map(ordered_pairs_to_object(data), function(value, key) {
+                _.map(orderedPairsToObject(data), function(value, key) {
                     return React.DOM.div(null, 
                         React.DOM.h1(null, key ), 
                         Table({data: value }), 
@@ -3938,14 +3939,14 @@ module.exports = React.createClass({displayName: 'exports',
     },
     formatter_multiple_data_table_w_headers: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "multiple_data_table" expected an Array');
-        assert(is_even(data.length), '[Bad Formatter Args] "multiple_data_table" expected an even length Array');
+        assert(isEven(data.length), '[Bad Formatter Args] "multiple_data_table" expected an even length Array');
 
         return React.DOM.div(null, 
             
-                _.map(ordered_pairs_to_object(data), function(value, key) {
+                _.map(orderedPairsToObject(data), function(value, key) {
                     return React.DOM.div(null, 
                         React.DOM.h1(null, key ), 
-                        Table({data: value, has_header: true }), 
+                        Table({data: value, hasHeader: true }), 
                         React.DOM.br(null)
                     );
                 })
@@ -3954,7 +3955,7 @@ module.exports = React.createClass({displayName: 'exports',
     }
 });
 
-function is_even(number) {
+function isEven(number) {
     return number % 2 === 0;
 }
 
@@ -3963,7 +3964,7 @@ function is_even(number) {
  * @param  {Array} list
  * @return {Object}
  */
-function ordered_pairs_to_object(list) {
+function orderedPairsToObject(list) {
     var object = {};
 
     for (var i = 0; i < list.length; i += 2) {
@@ -4105,7 +4106,7 @@ module.exports = React.createClass({displayName: 'exports',
         var data = this.props.data;
         var thead, tbody;
 
-        if (this.props.has_header) {
+        if (this.props.hasHeader) {
             thead = _.head(data, 1);
             tbody = _.tail(data);
         } else {
@@ -4218,7 +4219,7 @@ new Debugger().ready(function() {
 
     this.resource.on('plack-debugger.ui:load-request', function(request) {
         // TODO: Move into Resource.
-        if (check_for_ajax_tracking(request)) {
+        if (isAjaxTrackingRequested(request)) {
             this.trigger('plack-debugger._:ajax-tracking-enable');
         }
 
@@ -4230,7 +4231,7 @@ new Debugger().ready(function() {
     });
 });
 
-function check_for_ajax_tracking(request) {
+function isAjaxTrackingRequested(request) {
     return _.some(request, function(r) { return r.metadata && !!r.metadata.track_subrequests; });
 }
 

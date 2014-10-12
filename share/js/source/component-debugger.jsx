@@ -9,6 +9,8 @@ var Report = require('./component-report.jsx');
 var Subrequests = require('./component-subrequests.jsx');
 var ExpandButton = require('./component-expand-button.jsx');
 
+var TOGGLE_KEY = 'esc';
+
 module.exports = React.createClass({
     mixins: [ Expandable() ],
     getDefaultProps: function() {
@@ -53,10 +55,10 @@ module.exports = React.createClass({
         }
     },
     componentDidMount: function() {
-        key('esc', this.toggle);
+        key(TOGGLE_KEY, this.toggle);
     },
     componentWillUnmount: function () {
-        key.unbind('esc', this.toggle);
+        key.unbind(TOGGLE_KEY, this.toggle);
     },
     setActivePanel: function(title) {
         this.setState({ activePanel: title });

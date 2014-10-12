@@ -25,7 +25,7 @@ module.exports = React.createClass({
         return <span>{ String(data) }</span>;
     },
     formatter_pass_through: function(data) {
-        return <div dangerouslySetInnerHTML={{__html: data}} />;
+        return <div dangerouslySetInnerHTML={{ __html: data }} />;
     },
     formatter_generic_data_formatter: function(data) {
         if (_.isString(data) || _.isNumber(data) || _.isUndefined(data)) {
@@ -88,15 +88,15 @@ module.exports = React.createClass({
     },
     formatter_ordered_key_value_pairs: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "ordered_key_value_pairs" expected an Array');
-        assert(is_even(data.length), '[Bad Formatter Args] "ordered_key_value_pairs" expected an even length Array');
+        assert(isEven(data.length), '[Bad Formatter Args] "ordered_key_value_pairs" expected an even length Array');
 
-        return this.formatter_generic_data_formatter(ordered_pairs_to_object(data));
+        return this.formatter_generic_data_formatter(orderedPairsToObject(data));
     },
     formatter_ordered_keys_with_nested_data: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "ordered_nested_data" expected an Array');
-        assert(is_even(data.length), '[Bad Formatter Args] "ordered_nested_data" expected an even length Array');
+        assert(isEven(data.length), '[Bad Formatter Args] "ordered_nested_data" expected an even length Array');
 
-        return this.formatter_nested_data(ordered_pairs_to_object(data));
+        return this.formatter_nested_data(orderedPairsToObject(data));
     },
     formatter_simple_data_table: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "simple_data_table" expected an Array');
@@ -106,15 +106,15 @@ module.exports = React.createClass({
     formatter_simple_data_table_w_headers: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "simple_data_table_w_headers" expected an Array');
 
-        return <Table data={ data } has_header={ true } />
+        return <Table data={ data } hasHeader={ true } />
     },
     formatter_multiple_data_table: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "multiple_data_table" expected an Array');
-        assert(is_even(data.length), '[Bad Formatter Args] "multiple_data_table" expected an even length Array');
+        assert(isEven(data.length), '[Bad Formatter Args] "multiple_data_table" expected an even length Array');
 
         return <div>
             {
-                _.map(ordered_pairs_to_object(data), function(value, key) {
+                _.map(orderedPairsToObject(data), function(value, key) {
                     return <div>
                         <h1>{ key }</h1>
                         <Table data={ value } />
@@ -126,14 +126,14 @@ module.exports = React.createClass({
     },
     formatter_multiple_data_table_w_headers: function(data) {
         assert(_.isArray(data), '[Bad Formatter Args] "multiple_data_table" expected an Array');
-        assert(is_even(data.length), '[Bad Formatter Args] "multiple_data_table" expected an even length Array');
+        assert(isEven(data.length), '[Bad Formatter Args] "multiple_data_table" expected an even length Array');
 
         return <div>
             {
-                _.map(ordered_pairs_to_object(data), function(value, key) {
+                _.map(orderedPairsToObject(data), function(value, key) {
                     return <div>
                         <h1>{ key }</h1>
-                        <Table data={ value } has_header={ true } />
+                        <Table data={ value } hasHeader={ true } />
                         <br />
                     </div>;
                 })
@@ -142,7 +142,7 @@ module.exports = React.createClass({
     }
 });
 
-function is_even(number) {
+function isEven(number) {
     return number % 2 === 0;
 }
 
@@ -151,7 +151,7 @@ function is_even(number) {
  * @param  {Array} list
  * @return {Object}
  */
-function ordered_pairs_to_object(list) {
+function orderedPairsToObject(list) {
     var object = {};
 
     for (var i = 0; i < list.length; i += 2) {

@@ -20,7 +20,7 @@ new Debugger().ready(function() {
 
     this.resource.on('plack-debugger.ui:load-request', function(request) {
         // TODO: Move into Resource.
-        if (check_for_ajax_tracking(request)) {
+        if (isAjaxTrackingRequested(request)) {
             this.trigger('plack-debugger._:ajax-tracking-enable');
         }
 
@@ -32,6 +32,6 @@ new Debugger().ready(function() {
     });
 });
 
-function check_for_ajax_tracking(request) {
+function isAjaxTrackingRequested(request) {
     return _.some(request, function(r) { return r.metadata && !!r.metadata.track_subrequests; });
 }
