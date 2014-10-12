@@ -1,3 +1,7 @@
+// Shims for IE8.
+require('es5-shim');
+require('es5-shim/es5-sham');
+
 var _ = require('underscore');
 var React = require('react');
 var Debugger = require('./plack-debugger');
@@ -8,7 +12,8 @@ var CONTAINER_ID = 'plack-debugger';
 new Debugger().ready(function() {
     var render = create_renderer(create_container(CONTAINER_ID));
 
-    render({ staticURL: Debugger.$CONFIG.static_url });
+    inject_style_sheet(Debugger.$CONFIG.static_url + '/css/plack-debugger.css');
+    render();
 
     this.resource.on('plack-debugger.ui:load-request', function(request) {
         // TODO: Move into Resource.
@@ -37,6 +42,13 @@ function create_renderer(container) {
         _.extend(_props, props);
         React.renderComponent(Debugger_component(_props), container);
     };
+}
+
+function inject_style_sheet(href) {
+    var link = document.createElement('link');
+    link.setAttribute('rel', 'stylesheet');
+    link.setAttribute('href', href);
+    return document.getElementsByTagName('head')[0].appendChild(link);
 }
 
 function check_for_ajax_tracking(request) {

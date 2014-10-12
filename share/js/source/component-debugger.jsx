@@ -24,7 +24,6 @@ module.exports = React.createClass({
     },
     render: function() {
         return <div>
-            <link rel='stylesheet' href={ this.props.staticURL + '/css/plack-debugger.css' } />
             { this.renderMenu() }
             { this.renderActivePanel() }
             <ExpandButton onClick={ this.toggle } />

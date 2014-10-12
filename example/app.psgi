@@ -170,6 +170,7 @@ builder {
                     200, 
                     [ 'Content-Type' => 'text/html' ], 
                     [q[
+                        <!doctype html>
                         <html>
                         <head>
                             <title>Plack::Debugger - Test</title>
