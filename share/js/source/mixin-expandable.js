@@ -1,10 +1,14 @@
-module.exports = {
-    getInitialState: function() {
-        return {
-            expanded: false
-        };
-    },
-    toggle: function() {
-        this.setState({ expanded: !this.state.expanded });
-    }
+var _ = require('underscore');
+
+module.exports = function(initialState) {
+    var state = _.defaults(initialState || {}, {
+        expanded: false
+    });
+
+    return {
+        getInitialState: _.constant(state),
+        toggle: function() {
+            this.setState({ expanded: !this.state.expanded });
+        }
+    };
 };

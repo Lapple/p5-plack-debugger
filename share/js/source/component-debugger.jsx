@@ -10,7 +10,7 @@ var Subrequests = require('./component-subrequests.jsx');
 var ExpandButton = require('./component-expand-button.jsx');
 
 module.exports = React.createClass({
-    mixins: [Expandable],
+    mixins: [ Expandable() ],
     getDefaultProps: function() {
         return {
             request: [],

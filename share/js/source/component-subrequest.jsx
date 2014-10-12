@@ -7,7 +7,7 @@ var Report = require('./component-report.jsx');
 var SubrequestPanel = require('./component-subrequest-panel.jsx');
 
 module.exports = React.createClass({
-    mixins: [Expandable],
+    mixins: [ Expandable() ],
     render: function() {
         var props = this.props;
         var notifications = this.getNotifications(props.results);

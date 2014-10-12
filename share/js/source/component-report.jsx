@@ -3,7 +3,9 @@ var React = require('react');
 var assert = require('./assert');
 
 var Table = require('./component-table.jsx');
-var Report = React.createClass({
+var Tree = require('./component-tree.jsx');
+
+module.exports = React.createClass({
     getDefaultProps: function() {
         return {
             formatter: 'generic_data_formatter'
@@ -17,13 +19,13 @@ var Report = React.createClass({
         return formatter(this.props.data);
     },
     formatter_empty: function() {
-        return <span></span>;
+        return <span />;
     },
     formatter_to_string: function(data) {
         return <span>{ String(data) }</span>;
     },
     formatter_pass_through: function(data) {
-        return <div dangerouslySetInnerHTML={{__html: data}}></div>;
+        return <div dangerouslySetInnerHTML={{__html: data}} />;
     },
     formatter_generic_data_formatter: function(data) {
         if (_.isString(data) || _.isNumber(data) || _.isUndefined(data)) {
@@ -41,10 +43,10 @@ var Report = React.createClass({
                         _.map(data, function(item, index) {
                             return <tr key={ index }>
                                 <td className='pdb-item'>
-                                    <Report data={ item } />
+                                    { this.formatter_generic_data_formatter(item) }
                                 </td>
                             </tr>;
-                        })
+                        }, this)
                     }
                 </tbody>
             </table>;
@@ -58,10 +60,10 @@ var Report = React.createClass({
                             return <tr key={ key }>
                                 <td className='pdb-key'>{ key }</td>
                                 <td className='pdb-value'>
-                                    <Report data={ value } />
+                                    { this.formatter_generic_data_formatter(value) }
                                 </td>
                             </tr>;
-                        })
+                        }, this)
                     }
                 </tbody>
             </table>;
@@ -78,31 +80,8 @@ var Report = React.createClass({
             return this.formatter_empty();
         }
 
-        if (_.isArray(data)) {
-            return <ul className='pdb-ulist'>
-                {
-                    _.map(data, function(item, index) {
-                        return <li className='pdb-ulist-item' key={ index }>
-                            <Report formatter='nested_data' data={ item } />
-                        </li>;
-                    })
-                }
-            </ul>;
-        }
-
-        if (_.isObject(data)) {
-            return <ul className='pdb-ulist'>
-                {
-                    _.map(data, function(value, key) {
-                        return <li className='pdb-ulist-item' key={ key }>
-                            <span className='pdb-key'>{ key }</span>
-                            <span className='pdb-value'>
-                                <Report formatter='nested_data' data={ value } />
-                            </span>
-                        </li>;
-                    })
-                }
-            </ul>;
+        if (_.isArray(data) || _.isObject(data)) {
+            return <Tree data={ data } root={ true } />;
         }
 
         throw new Error('[Bad Formatter Args] "nested_data" expected type { String,Number,Array,Object }');
@@ -114,10 +93,6 @@ var Report = React.createClass({
         return this.formatter_generic_data_formatter(ordered_pairs_to_object(data));
     },
     formatter_ordered_keys_with_nested_data: function(data) {
-        if (!data) {
-            return '';
-        }
-
         assert(_.isArray(data), '[Bad Formatter Args] "ordered_nested_data" expected an Array');
         assert(is_even(data.length), '[Bad Formatter Args] "ordered_nested_data" expected an even length Array');
 
@@ -185,5 +160,3 @@ function ordered_pairs_to_object(list) {
 
     return object;
 }
-
-module.exports = Report;

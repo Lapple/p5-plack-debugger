@@ -5,7 +5,7 @@ var Expandable = require('./mixin-expandable');
 var Badge = require('./component-badge.jsx');
 
 module.exports = React.createClass({
-    mixins: [Expandable],
+    mixins: [ Expandable() ],
     render: function() {
         return <div className="pdb-subrequest-result">
             <div className="pdb-subrequest-header" onClick={ this.toggle }>
