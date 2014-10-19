@@ -2,8 +2,8 @@ var _ = require('underscore');
 var React = require('react');
 var assert = require('./assert');
 
+var Inspector = require('react-json-inspector');
 var Table = require('./component-table.jsx');
-var Tree = require('./component-tree.jsx');
 
 module.exports = React.createClass({
     getDefaultProps: function() {
@@ -81,7 +81,7 @@ module.exports = React.createClass({
         }
 
         if (_.isArray(data) || _.isObject(data)) {
-            return <Tree data={ data } root={ true } />;
+            return <Inspector data={ data } />;
         }
 
         throw new Error('[Bad Formatter Args] "nested_data" expected type { String,Number,Array,Object }');
