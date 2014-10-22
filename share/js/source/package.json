@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "A new debugging tool for Plack web applications",
   "scripts": {
-    "js": "NODE_ENV=production browserify share/js/source/main.js -o share/js/index.js",
-    "watch": "watchify share/js/source/main.js -o share/js/index.js -v",
-    "example": "starman --host 127.0.0.1 --port 8080 -I lib example/app.psgi"
+    "js": "NODE_ENV=production browserify main.js -o ../index.js",
+    "watch": "watchify main.js -o ../index.js -v"
   },
   "repository": {
     "type": "git",
