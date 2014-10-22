@@ -24,11 +24,11 @@ new Debugger().ready(function() {
             this.trigger('plack-debugger._:ajax-tracking-enable');
         }
 
-        render({ request: request });
+        render(this.serialize());
     });
 
-    this.resource.on('plack-debugger.ui:load-subrequests', function(subrequests) {
-        render({ subrequests: subrequests });
+    this.resource.on('plack-debugger.ui:load-subrequests', function() {
+        render(this.serialize());
     });
 });
 

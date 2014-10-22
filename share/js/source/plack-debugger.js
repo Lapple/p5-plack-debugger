@@ -1,5 +1,6 @@
 /* =============================================================== */
 
+var _ = require('underscore');
 var Plack = Plack || {};
 
 Plack.Debugger = function () {
@@ -242,6 +243,24 @@ Plack.Debugger.Resource.prototype.register = function () {
     //     event handler functions themselves
     this.on( 'plack-debugger._:ajax-tracking-enable',  Plack.Debugger.Util.bind_function( this._enable_AJAX_tracking, this ) );
     this.on( 'plack-debugger._:ajax-tracking-disable', Plack.Debugger.Util.bind_function( this._disable_AJAX_tracking, this ) );    
+}
+
+Plack.Debugger.Resource.prototype.serialize = function() {
+    var result = {};
+
+    var request = this._request;
+    var subrequests = this._subrequests;
+
+    if ( request ) {
+        result.request = request && request.data && request.data.results;
+
+        _.extend(
+            _.findWhere( result.request, { title: 'AJAX Requests' } ),
+            { result: subrequests && subrequests.data }
+        );
+    }
+
+    return result;
 }
 
 Plack.Debugger.Resource.prototype.is_AJAX_tracking_enabled = function () {

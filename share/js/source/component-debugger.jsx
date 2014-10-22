@@ -15,8 +15,7 @@ module.exports = React.createClass({
     mixins: [ Expandable() ],
     getDefaultProps: function() {
         return {
-            request: [],
-            subrequests: []
+            request: []
         };
     },
     getInitialState: function() {
@@ -44,10 +43,8 @@ module.exports = React.createClass({
             return <div className='pdb-panels'>
                 <Panel title={ data.title } subtitle={ data.subtitle } notifications={ data.notifications } onClose={ this.closeActivePanel }>
                     {
-                        // TODO: Subrequests can be stored in `results` field
-                        // for the AJAX requests section of `request`.
                         formatter === 'subrequest_formatter' ?
-                        Subrequests({ requests: this.props.subrequests }) :
+                        Subrequests({ requests: data.result }) :
                         Report({ formatter: formatter, data: data.result })
                     }
                 </Panel>

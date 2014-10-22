@@ -45,8 +45,7 @@ module.exports = React.createClass({displayName: 'exports',
     mixins: [ Expandable() ],
     getDefaultProps: function() {
         return {
-            request: [],
-            subrequests: []
+            request: []
         };
     },
     getInitialState: function() {
@@ -74,10 +73,8 @@ module.exports = React.createClass({displayName: 'exports',
             return React.DOM.div({className: "pdb-panels"}, 
                 Panel({title:  data.title, subtitle:  data.subtitle, notifications:  data.notifications, onClose:  this.closeActivePanel}, 
                     
-                        // TODO: Subrequests can be stored in `results` field
-                        // for the AJAX requests section of `request`.
                         formatter === 'subrequest_formatter' ?
-                        Subrequests({ requests: this.props.subrequests }) :
+                        Subrequests({ requests: data.result }) :
                         Report({ formatter: formatter, data: data.result })
                     
                 )
@@ -540,11 +537,11 @@ new Debugger().ready(function() {
             this.trigger('plack-debugger._:ajax-tracking-enable');
         }
 
-        render({ request: request });
+        render(this.serialize());
     });
 
-    this.resource.on('plack-debugger.ui:load-subrequests', function(subrequests) {
-        render({ subrequests: subrequests });
+    this.resource.on('plack-debugger.ui:load-subrequests', function() {
+        render(this.serialize());
     });
 });
 
@@ -23177,6 +23174,7 @@ module.exports = require('./lib/React');
 },{}],172:[function(require,module,exports){
 /* =============================================================== */
 
+var _ = require('underscore');
 var Plack = Plack || {};
 
 Plack.Debugger = function () {
@@ -23403,6 +23401,24 @@ Plack.Debugger.Resource.prototype.register = function () {
     this.on( 'plack-debugger._:ajax-tracking-disable', this._disable_AJAX_tracking.bind( this ) );    
 }
 
+Plack.Debugger.Resource.prototype.serialize = function() {
+    var result = {};
+
+    var request = this._request;
+    var subrequests = this._subrequests;
+
+    if ( request ) {
+        result.request = request && request.data && request.data.results;
+
+        _.extend(
+            _.findWhere( result.request, { title: 'AJAX Requests' } ),
+            { result: subrequests && subrequests.data }
+        );
+    }
+
+    return result;
+}
+
 Plack.Debugger.Resource.prototype.is_AJAX_tracking_enabled = function () {
     return this._AJAX_tracking;
 }
@@ -23507,7 +23523,7 @@ Plack.Debugger.Resource.prototype._handle_ajax_complete = function ( e ) {
 
 module.exports = Plack.Debugger;
 
-},{}],173:[function(require,module,exports){
+},{"underscore":171}],173:[function(require,module,exports){
 var _ = require('underscore');
 var React = require('react');
 
@@ -23526,7 +23542,6 @@ var doc = document;
 exports.init = function(options) {
     assert(_.isString(options.containerId));
 
-    var _props = {};
     var container = createContainer(options.containerId);
 
     if (_.isString(options.cssUrl)) {
@@ -23534,8 +23549,7 @@ exports.init = function(options) {
     }
 
     return function(props) {
-        _.extend(_props, props);
-        React.renderComponent(Debugger(_props), container);
+        React.renderComponent(Debugger(props), container);
     };
 };
 

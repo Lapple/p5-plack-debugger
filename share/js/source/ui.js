@@ -16,7 +16,6 @@ var doc = document;
 exports.init = function(options) {
     assert(_.isString(options.containerId));
 
-    var _props = {};
     var container = createContainer(options.containerId);
 
     if (_.isString(options.cssUrl)) {
@@ -24,8 +23,7 @@ exports.init = function(options) {
     }
 
     return function(props) {
-        _.extend(_props, props);
-        React.renderComponent(Debugger(_props), container);
+        React.renderComponent(Debugger(props), container);
     };
 };
 
