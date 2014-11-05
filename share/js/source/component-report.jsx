@@ -32,7 +32,7 @@ module.exports = React.createClass({
             return this.formatter_to_string(data);
         }
 
-        if (_.isNull(data)) {
+        if (_.isNull(data) || _.isEmpty(data)) {
             return this.formatter_empty();
         }
 

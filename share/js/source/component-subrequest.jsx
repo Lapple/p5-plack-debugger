@@ -6,11 +6,13 @@ var Badge = require('./component-badge.jsx');
 var Report = require('./component-report.jsx');
 var SubrequestPanel = require('./component-subrequest-panel.jsx');
 
+var countNotifications = require('./count-notifications');
+
 module.exports = React.createClass({
     mixins: [ Expandable() ],
     render: function() {
         var props = this.props;
-        var notifications = this.getNotifications(props.results);
+        var notifications = countNotifications(props.results);
 
         return <div className='pdb-subrequest'>
             <div className='pdb-subrequest-details' onClick={ this.toggle }>
@@ -46,24 +48,5 @@ module.exports = React.createClass({
                 }
             </div>
         }
-    },
-    getNotifications: function(rows) {
-        return _.reduce(rows, function(memo, row) {
-            var notifications = row.notifications;
-
-            if (notifications) {
-                return {
-                    error: memo.error + (notifications.error || 0),
-                    success: memo.success + (notifications.success || 0),
-                    warning: memo.warning + (notifications.warning || 0)
-                };
-            } else {
-                return memo;
-            }
-        }, {
-            error: 0,
-            success: 0,
-            warning: 0
-        });
     }
 });

@@ -246,21 +246,21 @@ Plack.Debugger.Resource.prototype.register = function () {
 }
 
 Plack.Debugger.Resource.prototype.serialize = function() {
-    var result = {};
+    var r = {};
 
     var request = this._request;
     var subrequests = this._subrequests;
 
     if ( request ) {
-        result.request = request && request.results;
+        r.request = request && request.results;
 
         _.extend(
-            _.findWhere( result.request, { title: 'AJAX Requests' } ),
-            { result: subrequests && subrequests.data }
+            _.findWhere( r.request, { title: 'AJAX Requests' } ),
+            { result: subrequests }
         );
     }
 
-    return result;
+    return r;
 }
 
 Plack.Debugger.Resource.prototype.is_AJAX_tracking_enabled = function () {
@@ -327,10 +327,10 @@ Plack.Debugger.Resource.prototype._update_target_on_request_error = function ( x
 // subrequest ...
 
 Plack.Debugger.Resource.prototype._update_target_on_subrequest_success = function ( response, status, xhr ) {
-    this.trigger( 'plack-debugger.ui:load-subrequests', response, { bubble : true } );
-
     this._subrequests            = response;
     this._subrequest_error_count = 0
+
+    this.trigger( 'plack-debugger.ui:load-subrequests', response, { bubble : true } );
 }
 
 Plack.Debugger.Resource.prototype._update_target_on_subrequest_error = function ( xhr, status, error ) {

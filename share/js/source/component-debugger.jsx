@@ -9,6 +9,8 @@ var Report = require('./component-report.jsx');
 var Subrequests = require('./component-subrequests.jsx');
 var ExpandButton = require('./component-expand-button.jsx');
 
+var countNotifications = require('./count-notifications');
+
 var TOGGLE_KEY = 'esc';
 
 module.exports = React.createClass({
@@ -24,10 +26,19 @@ module.exports = React.createClass({
         };
     },
     render: function() {
+        var notifications = countNotifications(this.props.request);
+        var expandButtonClassName = '';
+
+        if (notifications.error > 0) {
+            expandButtonClassName = 'pdb-has-errors';
+        } else if (notifications.warning > 0) {
+            expandButtonClassName = 'pdb-has-warnings';
+        }
+
         return <div>
             { this.renderMenu() }
             { this.renderActivePanel() }
-            <ExpandButton onClick={ this.toggle } />
+            <ExpandButton className={ expandButtonClassName } onClick={ this.toggle } />
         </div>;
     },
     renderMenu: function() {

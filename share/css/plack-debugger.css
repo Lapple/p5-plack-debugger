@@ -116,6 +116,14 @@
     color  : #ffffff;
 }
 
+#plack-debugger .pdb-collapsed .pdb-has-warnings {
+    color : #f0ad4e;
+ }
+
+#plack-debugger .pdb-collapsed .pdb-has-errors {
+    color : #d9534f;
+}
+
 /* Menu */
 
 #plack-debugger .pdb-menu {
@@ -383,16 +391,6 @@
 #plack-debugger .pdb-warning {
     background : #f0ad4e;
     color      : #ffffff;
-}
-
-#plack-debugger .pdb-has-warnings {
-    background : #f0ad4e !important;
-    color      : #ffffff !important;
- }
-
-#plack-debugger .pdb-has-errors {
-    background : #d9534f !important;
-    color      : #ffffff !important;
 }
 
 #plack-debugger .pdb-success {
