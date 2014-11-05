@@ -23183,6 +23183,9 @@ Plack.Debugger = function () {
     }
 }
 
+Plack.Debugger.MAX_RETRIES              = 5;
+Plack.Debugger.RETRY_BACKOFF_MULTIPLIER = 1000;
+
 Plack.Debugger.prototype._init_config = function () {
     var init_url = document.getElementById('plack-debugger-js-init').src;
 
@@ -23243,17 +23246,17 @@ Plack.Debugger.prototype._ready = function ( $jQuery, callback ) {
     // there is a need, it could be done.
     // - SL
 
-    $jQuery(document).ajaxSend( this._handle_AJAX_send.bind( this ) );
-    $jQuery(document).ajaxComplete( this._handle_AJAX_complete.bind( this ) );
+    $jQuery(document).ajaxSend( Plack.Debugger.Util.bind_function( this._handle_AJAX_send, this ) );
+    $jQuery(document).ajaxComplete( Plack.Debugger.Util.bind_function( this._handle_AJAX_complete, this ) );
 
     // NOTE:
     // Not sure I see the need for any of this yet, but 
     // we can just leave them here for now.
     // - SL
-    // $jQuery(document).ajaxError( this._handle_AJAX_error.bind( this ) );    
-    // $jQuery(document).ajaxSuccess( this._handle_AJAX_success.bind( this ) );
-    // $jQuery(document).ajaxStart( this._handle_AJAX_start.bind( this ) );
-    // $jQuery(document).ajaxStop( this._handle_AJAX_stop.bind( this ) );
+    // $jQuery(document).ajaxError( Plack.Debugger.Util.bind_function( this._handle_AJAX_error, this ) );    
+    // $jQuery(document).ajaxSuccess( Plack.Debugger.Util.bind_function( this._handle_AJAX_success, this ) );
+    // $jQuery(document).ajaxStart( Plack.Debugger.Util.bind_function( this._handle_AJAX_start, this ) );
+    // $jQuery(document).ajaxStop( Plack.Debugger.Util.bind_function( this._handle_AJAX_stop, this ) );
 
     this.resource.trigger( 'plack-debugger.resource.request:load' );
 
@@ -23277,9 +23280,9 @@ Plack.Debugger.prototype._handle_AJAX_complete = function (e, xhr, options) {
 /* =============================================================== */
 
 // NOTE:
-// as we find more and more silly jQUery back-compat issues
-// this is the namespace to put the shims we need to fix 
-// them and move on with our lives.
+// as we find more and more silly jQuery/JS/browser back-compat
+// issues, this is the namespace to put the shims into so that  
+// we can move on with our lives.
 // - SL
 
 Plack.Debugger.Util = {
@@ -23293,6 +23296,29 @@ Plack.Debugger.Util = {
             }
         }
         return idx;
+    },
+    // NOTE:
+    // This polyfill should be sufficient for 
+    // our usage (which is minimal), but just 
+    // in case we run into issues, use this:
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+    object_keys : function ( o ) {
+        if ( Object.keys ) return Object.keys( o );
+        var keys = [];
+        for ( var p in o ) {
+            if ( o.hasOwnProperty( p ) ) keys.push( p );
+        }
+        return keys;
+    },
+    // NOTE:
+    // This polyfill should be sufficient for 
+    // our usage (which is very specialized), 
+    // but just in case we run into issues, 
+    // use this:
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+    bind_function : function ( f, o ) {
+        if ( Function.prototype.bind ) return Function.prototype.bind.apply( f, [ o ] );
+        return function () { return f.apply( o, Array.prototype.slice.call(arguments) ) };
     }
 };
 
@@ -23327,14 +23353,11 @@ Plack.Debugger.Abstract.Eventful.prototype.trigger = function ( e, data, options
     if ( this._callbacks[ e ] === undefined ) {
         //console.log(["... attempting to bubble " + e + " on ", this, data, options ]);
         // not handling this specific event, so ...
-        if ( options != undefined && options.bubble ) {
+        if ( options !== undefined && options.bubble ) {
             // ... attempt to bubble the event to the target 
             this.locate_target().trigger( e, data, options );
         }
         else {
-            //for (var x in this._callbacks) {
-            //    console.log( "... we have " + x + " in callback set" );
-            //}
             //console.trace();
             throw new Error("[Unhandled event] This object does not handle event(" + e + ") ... and bubbling was not requested");
         }
@@ -23343,12 +23366,7 @@ Plack.Debugger.Abstract.Eventful.prototype.trigger = function ( e, data, options
         // otherwise we know we can handle this event, so do it ...
         var self = this;
         // and do it asynchronously ... 
-        setTimeout(function () {
-            var cbs = self._callbacks[ e ];     
-            for ( var i = 0; i < cbs.length; i++ ) {
-                cbs[i].apply( self, [ data ] )
-            }
-        }, 0);
+        setTimeout(function () { self._callbacks[ e ].apply( self, [ data ] ) }, 0);
     }
 }
 
@@ -23356,12 +23374,9 @@ Plack.Debugger.Abstract.Eventful.prototype.trigger = function ( e, data, options
 
 Plack.Debugger.Abstract.Eventful.prototype.on = function ( e, cb ) { 
     if ( this._callbacks      === undefined ) this._callbacks = {};
-    if ( this._callbacks[ e ] === undefined ) this._callbacks[ e ] = [];
+    if ( this._callbacks[ e ] !== undefined ) throw new Error ("An event already exists for <" + e + ">");
     //console.log([ "registering event: " + e + " on ", this, cb ]);
-    this._callbacks[ e ].push( cb );
-    if ( this._callbacks[ e ].length > 1 ) {
-        throw new Error ("Got more than one event registered for: " + e);
-    }
+    this._callbacks[ e ] = cb;
 }
 
 // unregister events ...
@@ -23383,6 +23398,9 @@ Plack.Debugger.Resource = function ( $jQuery, $parent, $target ) {
     this._subrequest_count = 0;
     this._AJAX_tracking    = false;
 
+    this._request_error_count    = 0;
+    this._subrequest_error_count = 0;
+
     this.register();
     this.setup_target( $parent, $target );
 }
@@ -23391,14 +23409,14 @@ Plack.Debugger.Resource.prototype = new Plack.Debugger.Abstract.Eventful();
 
 Plack.Debugger.Resource.prototype.register = function () {
     // register for events we handle 
-    this.on( 'plack-debugger.resource.request:load',     this._load_request.bind( this ) );
-    this.on( 'plack-debugger.resource.subrequests:load', this._load_subrequests.bind( this ) );
+    this.on( 'plack-debugger.resource.request:load',     Plack.Debugger.Util.bind_function( this._load_request, this ) );
+    this.on( 'plack-debugger.resource.subrequests:load', Plack.Debugger.Util.bind_function( this._load_all_subrequests, this ) );
 
     // also catch these global events
     // ... see NOTE below by the registered 
     //     event handler functions themselves
-    this.on( 'plack-debugger._:ajax-tracking-enable',  this._enable_AJAX_tracking.bind( this ) );
-    this.on( 'plack-debugger._:ajax-tracking-disable', this._disable_AJAX_tracking.bind( this ) );    
+    this.on( 'plack-debugger._:ajax-tracking-enable',  Plack.Debugger.Util.bind_function( this._enable_AJAX_tracking, this ) );
+    this.on( 'plack-debugger._:ajax-tracking-disable', Plack.Debugger.Util.bind_function( this._disable_AJAX_tracking, this ) );    
 }
 
 Plack.Debugger.Resource.prototype.serialize = function() {
@@ -23408,7 +23426,7 @@ Plack.Debugger.Resource.prototype.serialize = function() {
     var subrequests = this._subrequests;
 
     if ( request ) {
-        result.request = request && request.data && request.data.results;
+        result.request = request && request.results;
 
         _.extend(
             _.findWhere( result.request, { title: 'AJAX Requests' } ),
@@ -23430,12 +23448,12 @@ Plack.Debugger.Resource.prototype._load_request = function () {
         'dataType' : 'json',
         'url'      : (Plack.Debugger.$CONFIG.root_url + '/' + Plack.Debugger.$CONFIG.current_request_uid),
         'global'   : false,
-        'success'  : this._update_target_on_request_success.bind( this ),
-        'error'    : this._update_target_on_error.bind( this )
+        'success'  : Plack.Debugger.Util.bind_function( this._update_target_on_request_success, this ),
+        'error'    : Plack.Debugger.Util.bind_function( this._update_target_on_request_error, this )
     });
 }
 
-Plack.Debugger.Resource.prototype._load_subrequests = function () {
+Plack.Debugger.Resource.prototype._load_all_subrequests = function () {
     this.$jQuery.ajax({
         'dataType' : 'json',
         'url'      : (
@@ -23445,28 +23463,65 @@ Plack.Debugger.Resource.prototype._load_subrequests = function () {
             + '/subrequest'
         ),
         'global'   : false,
-        'success'  : this._update_target_on_subrequest_success.bind( this ),
-        'error'    : this._update_target_on_error.bind( this )
+        'success'  : Plack.Debugger.Util.bind_function( this._update_target_on_subrequest_success, this ),
+        'error'    : Plack.Debugger.Util.bind_function( this._update_target_on_subrequest_error, this )
     });
 }
 
+// request ...
+
 Plack.Debugger.Resource.prototype._update_target_on_request_success = function ( response, status, xhr ) {
-    this.trigger( 'plack-debugger.ui:load-request', response.data.results, { bubble : true } );
+    this._request             = response;
+    this._request_error_count = 0;
+
+    this.trigger( 'plack-debugger.ui:load-request', response.results, { bubble : true } );
 
     // once the target is updated, we can 
     // just start to ignore the event 
     this.off( 'plack-debugger.resource.request:load' );
-
-    this._request = response;
 }
+
+Plack.Debugger.Resource.prototype._update_target_on_request_error = function ( xhr, status, error ) {
+    // don't just throw an error right away, 
+    // do a few retries first, the server 
+    // might just be a little slow.
+    if ( this._request_error_count < Plack.Debugger.MAX_RETRIES ) {
+        this._request_error_count++;
+        var self = this;
+        setTimeout(function () {
+            self._load_request();
+        }, (this._request_error_count * Plack.Debugger.RETRY_BACKOFF_MULTIPLIER));
+        this.trigger( 'plack-debugger.ui:load-request-error-retry', this._request_error_count, { bubble : true } );
+    }
+    else {
+        this.trigger( 'plack-debugger.ui:load-request-error', error, { bubble : true } );
+    }
+}
+
+// subrequest ...
 
 Plack.Debugger.Resource.prototype._update_target_on_subrequest_success = function ( response, status, xhr ) {
-    this.trigger( 'plack-debugger.ui:load-subrequests', response.data, { bubble : true } );
-    this._subrequests = response;
+    this.trigger( 'plack-debugger.ui:load-subrequests', response, { bubble : true } );
+
+    this._subrequests            = response;
+    this._subrequest_error_count = 0
 }
 
-Plack.Debugger.Resource.prototype._update_target_on_error = function ( xhr, status, error ) {
-    this.trigger( 'plack-debugger.ui:load-error', error, { bubble : true } );
+Plack.Debugger.Resource.prototype._update_target_on_subrequest_error = function ( xhr, status, error ) {
+    // don't just throw an error right away, 
+    // do a few retries first, the server 
+    // might just be a little slow.
+    if ( this._subrequest_error_count < Plack.Debugger.MAX_RETRIES ) {
+        this._subrequest_error_count++;
+        var self = this;
+        setTimeout(function () {
+            self._load_all_subrequests();
+        }, (this._subrequest_error_count * Plack.Debugger.RETRY_BACKOFF_MULTIPLIER));
+        this.trigger( 'plack-debugger.ui:load-subrequests-error-retry', this._subrequest_error_count, { bubble : true } );
+    }
+    else {
+        this.trigger( 'plack-debugger.ui:load-subrequests-error', error, { bubble : true } );
+    }
 }
 
 // NOTE:
@@ -23488,8 +23543,8 @@ Plack.Debugger.Resource.prototype._update_target_on_error = function ( xhr, stat
 
 Plack.Debugger.Resource.prototype._enable_AJAX_tracking = function ( e ) {
     if ( !this._AJAX_tracking ) { // don't do silly things ...
-        this.on( 'plack-debugger._:ajax-send',     this._handle_ajax_send.bind( this ) );
-        this.on( 'plack-debugger._:ajax-complete', this._handle_ajax_complete.bind( this ) );        
+        this.on( 'plack-debugger._:ajax-send',     Plack.Debugger.Util.bind_function( this._handle_ajax_send, this ) );
+        this.on( 'plack-debugger._:ajax-complete', Plack.Debugger.Util.bind_function( this._handle_ajax_complete, this ) );        
         this._AJAX_tracking = true;  
     }  
 }
